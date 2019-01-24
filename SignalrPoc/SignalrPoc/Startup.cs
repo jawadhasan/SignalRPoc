@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SignalrPoc.Hubs;
 
 namespace SignalrPoc
 {
@@ -21,12 +22,22 @@ namespace SignalrPoc
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+             services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
+            {
+              builder
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowAnyOrigin()
+                        .AllowCredentials();
+            }));
             services.AddMvc();
-        }
+          services.AddSignalR();
+    }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+              app.UseCors("CorsPolicy");
             if (env.IsDevelopment())
             {
                 app.UseBrowserLink();
@@ -38,8 +49,15 @@ namespace SignalrPoc
             }
 
             app.UseStaticFiles();
+          app.UseDefaultFiles();
+          app.UseStaticFiles();
+          app.UseSignalR(routes =>
+          {
+            routes.MapHub<CoffeeHub>("/coffeeHub");
+            //routes.MapHub<GameHub>("/gameHub");
 
-            app.UseMvc();
+          });
+      app.UseMvc();
         }
     }
 }
