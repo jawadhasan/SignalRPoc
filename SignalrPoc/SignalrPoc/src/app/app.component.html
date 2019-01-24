@@ -2,9 +2,50 @@
   <a class="navbar-brand" href="#">SIGNALR  POC</a>
 </nav>
 
+
 <div class="container main-content">
-    <button (click)="sendTestMessage()">Send Test Message</button>
+
+    <form #orderForm="ngForm" novalidate>
+        <div class="row">
+            <div class="form-group col-md-6">
+                <label htmlFor="product">What's your poison?</label>
+                <input type="text"
+                       id="product"
+                       name="product"
+                       #product
+                       required
+                       class="form-control"
+                       [(ngModel)]="coffeeOrder.product" />
+            </div>
+            <div class="form-group col-md-6">
+                <label htmlFor="size">Size</label>
+                <input type="text"
+                       id="size"
+                       name="size"
+                       #size
+                       required
+                       class="form-control"
+                       [(ngModel)]="coffeeOrder.size" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <button id="submit" class="btn btn-primary" [disabled]="!orderForm.valid" (click)="placeOrder(orderForm)">
+                    Submit
+                </button>
+            </div>
+            <div class="col-md-6">
+                <div id="status"></div>
+            </div>
+        </div>
+    </form>
+
+<h1>{{signalRService?.status}}</h1>
+<button class="btn btn-primary" (click)="sendTestMessage()">Send Test Message</button>
+
 </div>
+
+
   <!-- Footer -->
   <footer class="bg-dark fixed-bottom text-center">    
       <a href="mailto:jawadhasan80@gmail.com">By: jawadhasan80@gmail.com</a>    

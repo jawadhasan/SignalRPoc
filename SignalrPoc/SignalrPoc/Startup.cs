@@ -6,58 +6,60 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SignalrPoc.Helper;
 using SignalrPoc.Hubs;
 
 namespace SignalrPoc
 {
-    public class Startup
+  public class Startup
+  {
+    public Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
-        public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
-             services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
-            {
-              builder
-                        .AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .AllowAnyOrigin()
-                        .AllowCredentials();
-            }));
-            services.AddMvc();
-          services.AddSignalR();
+      Configuration = configuration;
     }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        {
-              app.UseCors("CorsPolicy");
-            if (env.IsDevelopment())
-            {
-                app.UseBrowserLink();
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-            }
+    public IConfiguration Configuration { get; }
 
-            app.UseStaticFiles();
-          app.UseDefaultFiles();
-          app.UseStaticFiles();
-          app.UseSignalR(routes =>
-          {
-            routes.MapHub<CoffeeHub>("/coffeeHub");
-            //routes.MapHub<GameHub>("/gameHub");
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
+    {
+      services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
+     {
+       builder
+                 .AllowAnyMethod()
+                 .AllowAnyHeader()
+                 .AllowAnyOrigin()
+                 .AllowCredentials();
+     }));
+      services.AddMvc();
+      services.AddSingleton(new Random());
+      services.AddSingleton<OrderChecker>();
+      services.AddHttpContextAccessor();
+      services.AddSignalR();
+    }
 
-          });
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+    {
+      app.UseCors("CorsPolicy");
+      if (env.IsDevelopment())
+      {
+        app.UseBrowserLink();
+        app.UseDeveloperExceptionPage();
+      }
+      else
+      {
+        app.UseExceptionHandler("/Error");
+      }
+
+      app.UseStaticFiles();
+      app.UseDefaultFiles();
+      app.UseStaticFiles();
+      app.UseSignalR(routes =>
+      {
+        routes.MapHub<CoffeeHub>("/coffeeHub");
+      });
       app.UseMvc();
-        }
     }
+  }
 }
